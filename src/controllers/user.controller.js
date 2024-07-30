@@ -1,7 +1,10 @@
 import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 const generateAccessAndRefreshToken = async (userId) => {
@@ -223,7 +226,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email } = req.body;
 
-  if (!(fullName || email)) {
+  if (!fullName || !email) {
     throw new ApiError(400, "All fields Required");
   }
 
@@ -251,19 +254,24 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-  if (!avatar.url) {
+  if (!avatar || !avatar.url) {
     throw new ApiError(400, "Error while uploading on avatar");
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        avatar: avatar.url,
-      },
-    },
-    { new: true }
-  ).select("-password");
+  const user = await User.findById(req.user?._id).select("-password");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.avatar) {
+    const publicId = user.avatar.split("/").pop().split(".")[0];
+    await deleteFromCloudinary(publicId);
+  }
+
+  user.avatar = avatar.url;
+  await user.save();
+
   return res
     .status(200)
     .json(new ApiResponse(200, user, "Avatar Changed successfully"));
@@ -277,19 +285,24 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
-  if (!coverImage.url) {
+  if (!coverImage || !coverImage.url) {
     throw new ApiError(400, "Error while uploading on avatar");
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        coverImage: coverImage.url,
-      },
-    },
-    { new: true }
-  ).select("-password");
+  const user = await User.findById(req.user?._id).select("-password");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.coverImage) {
+    const publicId = user.coverImage.split("/").pop().split(".")[0];
+    await deleteFromCloudinary(publicId);
+  }
+
+  user.coverImage = coverImage.url;
+  await user.save();
+
   return res
     .status(200)
     .json(new ApiResponse(200, user, "Cover Image Changed successfully"));
