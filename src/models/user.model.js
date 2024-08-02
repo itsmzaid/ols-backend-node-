@@ -51,6 +51,7 @@ const userSchema = new Schema(
   }
 );
 
+// Hash the password before saving the user document
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -59,10 +60,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Compare the provided password with the hashed password
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Generate access token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
@@ -78,6 +81,7 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
+// Generate refresh token
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
