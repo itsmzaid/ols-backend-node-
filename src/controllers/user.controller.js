@@ -22,10 +22,10 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password, phoneNo } = req.body;
+  const { name, email, password, phoneNo } = req.body;
   const avatarPath = req.file?.path;
 
-  if (!fullName || !email || !password || !phoneNo) {
+  if (!name || !email || !password || !phoneNo) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -35,7 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    fullName,
+    name,
     email,
     password,
     phoneNo,
@@ -67,6 +67,8 @@ const registerUser = asyncHandler(async (req, res) => {
 // Login
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
+  console.log(req.body);
 
   if (!email || !password) {
     throw new ApiError(400, "Email and password are required");
@@ -147,7 +149,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetched"));
 });
 
-// Update Account
 // Update Account
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email, phoneNo, password } = req.body;
