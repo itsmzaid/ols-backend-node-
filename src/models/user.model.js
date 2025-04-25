@@ -33,6 +33,11 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
+    role: {
+      type: String,
+      enum: ["user", "rider"],
+      default: "user",
+    },
   },
   {
     timestamps: true,

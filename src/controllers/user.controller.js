@@ -22,7 +22,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, phoneNo } = req.body;
+  const { name, email, password, phoneNo, role } = req.body;
   const avatarPath = req.file?.path;
 
   if (!name || !email || !password || !phoneNo) {
@@ -39,6 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     phoneNo,
+    role,
     avatar: avatarPath || "",
   });
 
@@ -66,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 // Login
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   console.log(req.body);
 
@@ -74,7 +75,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email and password are required");
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email, role });
   if (!user || !(await user.isPasswordCorrect(password))) {
     throw new ApiError(401, "Invalid email or password");
   }
