@@ -11,7 +11,7 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
-    fullName: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -32,6 +32,11 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
       default: null,
+    },
+    role: {
+      type: String,
+      enum: ["user", "rider"],
+      default: "user",
     },
   },
   {

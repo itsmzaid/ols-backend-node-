@@ -22,23 +22,24 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password, phoneNo } = req.body;
+  const { name, email, password, phoneNo, role } = req.body;
   const avatarPath = req.file?.path;
 
-  if (!fullName || !email || !password || !phoneNo) {
+  if (!name || !email || !password || !phoneNo) {
     throw new ApiError(400, "All fields are required");
   }
 
   const existedUser = await User.findOne({ email });
   if (existedUser) {
-    throw new ApiError(409, "User already exists with this email");
+    throw new ApiError(409, "Email already in use");
   }
 
   const user = await User.create({
-    fullName,
+    name,
     email,
     password,
     phoneNo,
+    role,
     avatar: avatarPath || "",
   });
 
@@ -66,13 +67,15 @@ const registerUser = asyncHandler(async (req, res) => {
 
 // Login
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
+
+  console.log(req.body);
 
   if (!email || !password) {
     throw new ApiError(400, "Email and password are required");
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email, role });
   if (!user || !(await user.isPasswordCorrect(password))) {
     throw new ApiError(401, "Invalid email or password");
   }
@@ -147,7 +150,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetched"));
 });
 
-// Update Account
 // Update Account
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email, phoneNo, password } = req.body;

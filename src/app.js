@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 app.use("/temp", express.static("public/temp"));
 
-app.use("/api/v1/users", userRouter);
+app.use("/user", userRouter);
 
 app.use((err, req, res, next) => {
   console.error("ERROR:", err.message);

@@ -1,1 +1,1 @@
-export const DB_NAME = "ols_backend";
+export const DB_NAME = "ols";
