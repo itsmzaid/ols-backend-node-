@@ -20,13 +20,23 @@ const generateAccessAndRefreshToken = async (userId) => {
   }
 };
 
-// Register User
+// Register User or Rider
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, phoneNo, role } = req.body;
+  const { name, email, password, phoneNo, role, cnic, licenseNumber } =
+    req.body;
   const avatarPath = req.file?.path;
 
-  if (!name || !email || !password || !phoneNo) {
+  if (!name || !email || !password || !phoneNo || !role) {
     throw new ApiError(400, "All fields are required");
+  }
+
+  if (role === "rider") {
+    if (!cnic || !licenseNumber || !avatarPath) {
+      throw new ApiError(
+        400,
+        "CNIC, License Number, and Avatar are required for rider"
+      );
+    }
   }
 
   const existedUser = await User.findOne({ email });
@@ -41,6 +51,8 @@ const registerUser = asyncHandler(async (req, res) => {
     phoneNo,
     role,
     avatar: avatarPath || "",
+    cnic: cnic || "",
+    licenseNumber: licenseNumber || "",
   });
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
@@ -69,15 +81,13 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password, role } = req.body;
 
-  console.log(req.body);
-
-  if (!email || !password) {
-    throw new ApiError(400, "Email and password are required");
+  if (!email || !password || !role) {
+    throw new ApiError(400, "Email, password, and role are required");
   }
 
   const user = await User.findOne({ email, role });
   if (!user || !(await user.isPasswordCorrect(password))) {
-    throw new ApiError(401, "Invalid email or password");
+    throw new ApiError(401, "Invalid email, password or role");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
@@ -152,29 +162,28 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 // Update Account
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email, phoneNo, password } = req.body;
-
+  const { name, email, phoneNo, cnic, licenseNumber, password } = req.body;
   if (!password) {
     throw new ApiError(400, "Password is required to update account");
   }
-
   const user = await User.findById(req.user._id);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-
   const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid password");
   }
 
-  // Update only provided fields
-  if (fullName) user.fullName = fullName;
+  if (name) user.name = name;
   if (email) user.email = email;
   if (phoneNo) user.phoneNo = phoneNo;
+  if (user.role === "rider") {
+    if (cnic) user.cnic = cnic;
+    if (licenseNumber) user.licenseNumber = licenseNumber;
+  }
 
   await user.save({ validateBeforeSave: false });
-
   const safeUser = await User.findById(user._id).select("-password");
 
   return res

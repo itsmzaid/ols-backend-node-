@@ -24,6 +24,15 @@ const userSchema = new Schema(
     avatar: {
       type: String,
       default: null,
+      validate: {
+        validator: function (value) {
+          if (this.role === "rider") {
+            return value && value.length > 0;
+          }
+          return true;
+        },
+        message: "Avatar is required for rider",
+      },
     },
     password: {
       type: String,
@@ -37,6 +46,32 @@ const userSchema = new Schema(
       type: String,
       enum: ["user", "rider"],
       default: "user",
+    },
+    cnic: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function (value) {
+          if (this.role === "rider") {
+            return value && value.length > 0;
+          }
+          return true;
+        },
+        message: "CNIC is required for rider",
+      },
+    },
+    licenseNumber: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function (value) {
+          if (this.role === "rider") {
+            return value && value.length > 0;
+          }
+          return true;
+        },
+        message: "License Number is required for rider",
+      },
     },
   },
   {
@@ -59,8 +94,9 @@ userSchema.methods.generateAccessToken = function () {
     {
       _id: this._id,
       email: this.email,
-      fullName: this.fullName,
+      name: this.name,
       phoneNo: this.phoneNo,
+      role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
