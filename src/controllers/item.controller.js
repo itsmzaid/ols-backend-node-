@@ -6,7 +6,7 @@ import { Item } from "../models/item.model.js";
 // Create Item
 const createItem = asyncHandler(async (req, res) => {
   const { title, serviceType, price } = req.body;
-  const avatarPath = req.file?.path || null;
+  const avatarPath = req.file?.filename || null;
 
   if (!title || !serviceType || !price) {
     throw new ApiError(400, "Title, ServiceType and Price are required");
