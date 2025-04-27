@@ -3,6 +3,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import userRouter from "./routes/user.routes.js";
+import riderRouter from "./routes/rider.routes.js";
+import itemRouter from "./routes/item.routes.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -22,6 +24,8 @@ app.use(cookieParser());
 app.use("/temp", express.static("public/temp"));
 
 app.use("/user", userRouter);
+app.use("/rider", riderRouter);
+app.use("/item", itemRouter);
 
 app.use((err, req, res, next) => {
   console.error("ERROR:", err.message);

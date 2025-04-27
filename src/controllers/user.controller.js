@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
-// Token Generator
+// Token Generator for User
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -20,23 +20,13 @@ const generateAccessAndRefreshToken = async (userId) => {
   }
 };
 
-// Register User or Rider
+// Register User
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, phoneNo, role, cnic, licenseNumber } =
-    req.body;
+  const { name, email, password, phoneNo } = req.body;
   const avatarPath = req.file?.path;
 
-  if (!name || !email || !password || !phoneNo || !role) {
+  if (!name || !email || !password || !phoneNo) {
     throw new ApiError(400, "All fields are required");
-  }
-
-  if (role === "rider") {
-    if (!cnic || !licenseNumber || !avatarPath) {
-      throw new ApiError(
-        400,
-        "CNIC, License Number, and Avatar are required for rider"
-      );
-    }
   }
 
   const existedUser = await User.findOne({ email });
@@ -49,10 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     phoneNo,
-    role,
     avatar: avatarPath || "",
-    cnic: cnic || "",
-    licenseNumber: licenseNumber || "",
   });
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
@@ -77,17 +64,17 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 });
 
-// Login
+// Login User
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
 
-  if (!email || !password || !role) {
-    throw new ApiError(400, "Email, password, and role are required");
+  if (!email || !password) {
+    throw new ApiError(400, "Email and password are required");
   }
 
-  const user = await User.findOne({ email, role });
+  const user = await User.findOne({ email });
   if (!user || !(await user.isPasswordCorrect(password))) {
-    throw new ApiError(401, "Invalid email, password or role");
+    throw new ApiError(401, "Invalid email or password");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
@@ -112,7 +99,7 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-// Logout
+// Logout User
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } });
 
@@ -160,9 +147,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetched"));
 });
 
-// Update Account
+// Update Account Details
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { name, email, phoneNo, cnic, licenseNumber, password } = req.body;
+  const { name, email, phoneNo, password } = req.body;
   if (!password) {
     throw new ApiError(400, "Password is required to update account");
   }
@@ -178,10 +165,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   if (name) user.name = name;
   if (email) user.email = email;
   if (phoneNo) user.phoneNo = phoneNo;
-  if (user.role === "rider") {
-    if (cnic) user.cnic = cnic;
-    if (licenseNumber) user.licenseNumber = licenseNumber;
-  }
 
   await user.save({ validateBeforeSave: false });
   const safeUser = await User.findById(user._id).select("-password");
@@ -191,7 +174,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, safeUser, "Profile updated successfully"));
 });
 
-// Change Password
+// Change Current Password
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = await User.findById(req.user._id);
@@ -206,7 +189,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, {}, "Password changed"));
 });
 
-// Update Avatar
+// Update User Avatar
 const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatarPath = req.file?.path;
   if (!avatarPath) {
