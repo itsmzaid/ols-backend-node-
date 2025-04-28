@@ -49,7 +49,9 @@ export const getCart = asyncHandler(async (req, res) => {
   const cart = await Cart.findOne({ user: userId }).populate("items.item");
 
   if (!cart) {
-    throw new ApiError(404, "Cart not found");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { items: [] }, "User cart is empty"));
   }
 
   return res
