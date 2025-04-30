@@ -51,12 +51,26 @@ export const getCart = asyncHandler(async (req, res) => {
   if (!cart) {
     return res
       .status(200)
-      .json(new ApiResponse(200, { items: [] }, "User cart is empty"));
+      .json(
+        new ApiResponse(200, { items: [], subTotal: 0 }, "User cart is empty")
+      );
   }
+
+  const subTotal = cart.items.reduce((total, cartItem) => {
+    const price = cartItem.item?.price || 0;
+    return total + cartItem.quantity * price;
+  }, 0);
+
+  const cartWithSubTotal = {
+    ...cart.toObject(),
+    subTotal,
+  };
 
   return res
     .status(200)
-    .json(new ApiResponse(200, cart, "User cart fetched successfully"));
+    .json(
+      new ApiResponse(200, cartWithSubTotal, "User cart fetched successfully")
+    );
 });
 
 export const updateCartItem = asyncHandler(async (req, res) => {

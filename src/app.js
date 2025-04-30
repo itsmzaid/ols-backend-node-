@@ -6,6 +6,7 @@ import userRouter from "./routes/user.routes.js";
 import riderRouter from "./routes/rider.routes.js";
 import itemRouter from "./routes/item.routes.js";
 import cartRouter from "./routes/cart.routes.js";
+import orderRouter from "./routes/order.routes.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -28,6 +29,7 @@ app.use("/user", userRouter);
 app.use("/rider", riderRouter);
 app.use("/item", itemRouter);
 app.use("/cart", cartRouter);
+app.use("/order", orderRouter);
 
 app.use((err, req, res, next) => {
   console.error("ERROR:", err.message);
