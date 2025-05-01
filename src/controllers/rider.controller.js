@@ -20,59 +20,6 @@ const generateAccessAndRefreshTokenRider = async (riderId) => {
   }
 };
 
-// Register Rider
-const registerRider = asyncHandler(async (req, res) => {
-  const { name, email, password, phoneNo, cnic, licenseNumber } = req.body;
-  const avatarPath = req.file?.path;
-
-  if (
-    !name ||
-    !email ||
-    !password ||
-    !phoneNo ||
-    !cnic ||
-    !licenseNumber ||
-    !avatarPath
-  ) {
-    throw new ApiError(400, "All fields are required for rider registration");
-  }
-
-  const existedRider = await Rider.findOne({ email });
-  if (existedRider) {
-    throw new ApiError(409, "Email already in use");
-  }
-
-  const rider = await Rider.create({
-    name,
-    email,
-    password,
-    phoneNo,
-    cnic,
-    licenseNumber,
-    avatar: avatarPath,
-  });
-
-  const { accessToken, refreshToken } =
-    await generateAccessAndRefreshTokenRider(rider._id);
-
-  const options = { httpOnly: true, secure: true };
-  const safeRider = await Rider.findById(rider._id).select(
-    "-password -refreshToken"
-  );
-
-  return res
-    .status(201)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        201,
-        { rider: safeRider, accessToken, refreshToken },
-        "Rider registered & logged in successfully"
-      )
-    );
-});
-
 // Login Rider
 const loginRider = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -213,7 +160,6 @@ const updateRiderAvatar = asyncHandler(async (req, res) => {
 });
 
 export {
-  registerRider,
   loginRider,
   logoutRider,
   refreshAccessTokenRider,
