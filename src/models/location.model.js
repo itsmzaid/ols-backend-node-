@@ -12,6 +12,11 @@ const userLocationSchema = new Schema(
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
     shippingRate: { type: Number, required: true },
+    assignedAdmin: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+    },
   },
   { timestamps: true }
 );

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  registerRider,
   loginRider,
   logoutRider,
   refreshAccessTokenRider,
@@ -14,7 +13,6 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
-router.post("/register", upload.single("avatar"), registerRider);
 router.post("/login", loginRider);
 router.post("/logout", verifyRiderJWT, logoutRider);
 router.post("/refresh-token", refreshAccessTokenRider);

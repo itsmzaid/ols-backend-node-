@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import { Rider } from "../models/rider.model.js";
+import { Admin } from "../models/admin.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import jwt from "jsonwebtoken";
@@ -7,7 +8,6 @@ import jwt from "jsonwebtoken";
 if (!process.env.ACCESS_TOKEN_SECRET) {
   throw new Error("ACCESS_TOKEN_SECRET environment variable not set");
 }
-
 const verifyToken = (model) =>
   asyncHandler(async (req, _, next) => {
     const token =
@@ -24,9 +24,11 @@ const verifyToken = (model) =>
       const user = await model
         .findById(decodedToken?._id)
         .select("-password -refreshToken");
+
       if (!user) {
         return next(new ApiError(401, "Invalid access token: User not found"));
       }
+
       req.user = user;
       next();
     } catch (error) {
@@ -43,5 +45,5 @@ const verifyToken = (model) =>
   });
 
 export const verifyUserJWT = verifyToken(User);
-
 export const verifyRiderJWT = verifyToken(Rider);
+export const verifyAdminJWT = verifyToken(Admin);

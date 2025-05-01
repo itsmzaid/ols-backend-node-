@@ -29,6 +29,12 @@ const orderSchema = new Schema(
       default: "pending",
     },
     rider: { type: Schema.Types.ObjectId, ref: "Rider" },
+
+    assignedAdmin: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+    },
   },
   { timestamps: true }
 );
