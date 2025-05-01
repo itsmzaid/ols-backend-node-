@@ -1,31 +1,23 @@
 import { Order } from "../models/order.model.js";
 import { Cart } from "../models/cart.model.js";
+import { UserLocation } from "../models/location.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asynchandler.js";
-import { getDistanceInKm } from "../utils/distance.utils.js";
-
-const adminLocation = {
-  latitude: 31.491394911372183, // Thokhar lahore ka he ye
-  longitude: 74.23846953839717,
-};
-const shippingRatePerKm = 50;
 
 export const createOrder = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const { location, paymentMethod, pickupDate, pickupTime } = req.body;
+  const { paymentMethod, pickupDate, pickupTime } = req.body;
 
-  if (
-    !location ||
-    !location.address ||
-    !location.latitude ||
-    !location.longitude
-  ) {
-    throw new ApiError(400, "Complete location is required");
+  const location = await UserLocation.findOne({ user: userId });
+  if (!location) {
+    throw new ApiError(
+      400,
+      "Location not set. Please set your location first."
+    );
   }
 
   const cart = await Cart.findOne({ user: userId }).populate("items.item");
-
   if (!cart || cart.items.length === 0) {
     throw new ApiError(400, "Cart is empty");
   }
@@ -35,14 +27,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     0
   );
 
-  const distance = getDistanceInKm(
-    adminLocation.latitude,
-    adminLocation.longitude,
-    location.latitude,
-    location.longitude
-  );
-
-  const shippingPrice = Math.round(distance * shippingRatePerKm);
+  const shippingPrice = location.shippingRate;
   const total = subTotal + shippingPrice;
 
   const order = await Order.create({
@@ -50,8 +35,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     items: cart.items,
     location,
     paymentMethod,
-    pickupDate,
-    pickupTime,
+    pickupDate: new Date(pickupDate),
+    pickupTime: new Date(pickupTime),
     shippingPrice,
     subTotal,
     total,
