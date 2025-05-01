@@ -1,13 +1,10 @@
 import { UserLocation } from "../models/location.model.js";
+import { Admin } from "../models/admin.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import { getDistanceInKm } from "../utils/distance.utils.js";
 
-const adminLocation = {
-  latitude: 31.491394911372183,
-  longitude: 74.23846953839717,
-};
 const shippingRatePerKm = 50;
 
 export const setUserLocation = asyncHandler(async (req, res) => {
@@ -18,18 +15,40 @@ export const setUserLocation = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Address, latitude and longitude are required");
   }
 
-  const distance = getDistanceInKm(
-    adminLocation.latitude,
-    adminLocation.longitude,
-    latitude,
-    longitude
-  );
+  const admins = await Admin.find({ location: { $exists: true } });
 
-  const shippingRate = Math.round(distance * shippingRatePerKm);
+  if (admins.length === 0) {
+    throw new ApiError(500, "No admin location available");
+  }
+
+  let nearestAdmin = null;
+  let minDistance = Infinity;
+
+  for (const admin of admins) {
+    const dist = getDistanceInKm(
+      admin.location.latitude,
+      admin.location.longitude,
+      latitude,
+      longitude
+    );
+
+    if (dist < minDistance) {
+      minDistance = dist;
+      nearestAdmin = admin;
+    }
+  }
+
+  const shippingRate = Math.round(minDistance * shippingRatePerKm);
 
   const updated = await UserLocation.findOneAndUpdate(
     { user: userId },
-    { address, latitude, longitude, shippingRate },
+    {
+      address,
+      latitude,
+      longitude,
+      shippingRate,
+      assignedAdmin: nearestAdmin._id,
+    },
     { new: true, upsert: true }
   );
 
@@ -39,7 +58,7 @@ export const setUserLocation = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         updated,
-        "Location saved and shipping rate calculated"
+        "Location saved, shipping calculated, nearest admin assigned"
       )
     );
 });

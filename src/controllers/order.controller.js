@@ -41,6 +41,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     subTotal,
     total,
     status: "pending",
+    assignedAdmin: location.assignedAdmin,
   });
 
   cart.items = [];

@@ -43,6 +43,11 @@ const riderSchema = new Schema(
       type: String,
       default: null,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: [true, "Admin reference is required for rider"],
+    },
   },
   { timestamps: true }
 );
