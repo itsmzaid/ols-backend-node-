@@ -3,13 +3,10 @@ import {
   createOrder,
   getMyOrders,
   getOrderById,
-  assignRider,
 } from "../controllers/order.controller.js";
 import { verifyUserJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
-
-router.patch("/assign/:orderId", assignRider);
 
 router.use(verifyUserJWT);
 

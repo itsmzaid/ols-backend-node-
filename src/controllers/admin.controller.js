@@ -163,3 +163,25 @@ export const updateAdminProfile = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const assignRiderToOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { riderId } = req.body;
+
+  if (!riderId) {
+    throw new ApiError(400, "Rider ID is required");
+  }
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new ApiError(404, "Order not found");
+  }
+
+  order.rider = riderId;
+  order.status = "confirmed";
+  await order.save();
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, order, "Rider assigned successfully"));
+});
