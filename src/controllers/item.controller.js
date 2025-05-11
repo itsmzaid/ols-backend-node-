@@ -21,7 +21,7 @@ const createItem = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, item, "Item created successfully"));
+    .json(new ApiResponse(200, item, "Item created successfully"));
 });
 
 // Get All Items

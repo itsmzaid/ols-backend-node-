@@ -57,7 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
-        201,
+        200,
         { user: safeUser, accessToken, refreshToken },
         "User registered & logged in successfully"
       )

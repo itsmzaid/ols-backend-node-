@@ -16,7 +16,7 @@ export const registerAdmin = asyncHandler(async (req, res) => {
   if (existing) throw new ApiError(409, "Admin already exists");
 
   const admin = await Admin.create({ name, email, password });
-  res.status(201).json(new ApiResponse(201, admin, "Admin registered"));
+  res.status(201).json(new ApiResponse(200, admin, "Admin registered"));
 });
 
 // Login
@@ -120,7 +120,7 @@ export const registerRider = asyncHandler(async (req, res) => {
     cnic,
     licenseNumber,
     avatar: avatarPath,
-    createdBy: req.user._id, // 👈 Link to Admin
+    createdBy: req.user._id,
   });
 
   const safeRider = await Rider.findById(rider._id).select(
@@ -130,7 +130,7 @@ export const registerRider = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(
-      new ApiResponse(201, { rider: safeRider }, "Rider registered by admin")
+      new ApiResponse(200, { rider: safeRider }, "Rider registered by admin")
     );
 });
 

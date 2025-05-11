@@ -49,7 +49,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   res
     .status(201)
-    .json(new ApiResponse(201, order, "Order created successfully"));
+    .json(new ApiResponse(200, order, "Order created successfully"));
 });
 
 export const getMyOrders = asyncHandler(async (req, res) => {
