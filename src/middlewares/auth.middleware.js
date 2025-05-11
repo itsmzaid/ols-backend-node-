@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 import { Rider } from "../models/rider.model.js";
 import { Admin } from "../models/admin.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 
 if (!process.env.ACCESS_TOKEN_SECRET) {
