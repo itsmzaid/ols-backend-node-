@@ -1,5 +1,3 @@
-// src/routes/rider.routes.js
-
 import { Router } from "express";
 import {
   loginRider,
@@ -9,7 +7,7 @@ import {
   getCurrentRider,
   updateAccountDetailsRider,
   updateRiderAvatar,
-  updateRiderStatus, // Import the status update function
+  updateRiderStatus,
 } from "../controllers/rider.controller.js";
 import { verifyRiderJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
