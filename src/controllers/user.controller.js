@@ -1,4 +1,4 @@
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
@@ -57,7 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
-        201,
+        200,
         { user: safeUser, accessToken, refreshToken },
         "User registered & logged in successfully"
       )

@@ -2,7 +2,7 @@ import { UserLocation } from "../models/location.model.js";
 import { Admin } from "../models/admin.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { getDistanceInKm } from "../utils/distance.utils.js";
 
 const shippingRatePerKm = 50;

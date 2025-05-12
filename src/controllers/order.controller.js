@@ -3,7 +3,7 @@ import { Cart } from "../models/cart.model.js";
 import { UserLocation } from "../models/location.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const userId = req.user._id;
@@ -49,7 +49,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   res
     .status(201)
-    .json(new ApiResponse(201, order, "Order created successfully"));
+    .json(new ApiResponse(200, order, "Order created successfully"));
 });
 
 export const getMyOrders = asyncHandler(async (req, res) => {
@@ -72,26 +72,4 @@ export const getOrderById = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json(new ApiResponse(200, order, "Order details fetched"));
-});
-
-export const assignRider = asyncHandler(async (req, res) => {
-  const { orderId } = req.params;
-  const { riderId } = req.body;
-
-  if (!riderId) {
-    throw new ApiError(400, "Rider ID is required");
-  }
-
-  const order = await Order.findById(orderId);
-  if (!order) {
-    throw new ApiError(404, "Order not found");
-  }
-
-  order.rider = riderId;
-  order.status = "confirmed";
-  await order.save();
-
-  res
-    .status(200)
-    .json(new ApiResponse(200, order, "Rider assigned successfully"));
 });

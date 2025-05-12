@@ -7,6 +7,7 @@ import {
   getCurrentRider,
   updateAccountDetailsRider,
   updateRiderAvatar,
+  updateRiderStatus,
 } from "../controllers/rider.controller.js";
 import { verifyRiderJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -25,5 +26,6 @@ router.post(
   upload.single("avatar"),
   updateRiderAvatar
 );
+router.patch("/status", verifyRiderJWT, updateRiderStatus);
 
 export default router;

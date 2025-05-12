@@ -1,4 +1,4 @@
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Item } from "../models/item.model.js";
@@ -21,7 +21,7 @@ const createItem = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new ApiResponse(201, item, "Item created successfully"));
+    .json(new ApiResponse(200, item, "Item created successfully"));
 });
 
 // Get All Items

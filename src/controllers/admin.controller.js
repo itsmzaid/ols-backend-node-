@@ -1,7 +1,7 @@
 import { Admin } from "../models/admin.model.js";
 import { Rider } from "../models/rider.model.js";
 import { Order } from "../models/order.model.js";
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
@@ -16,7 +16,7 @@ export const registerAdmin = asyncHandler(async (req, res) => {
   if (existing) throw new ApiError(409, "Admin already exists");
 
   const admin = await Admin.create({ name, email, password });
-  res.status(201).json(new ApiResponse(201, admin, "Admin registered"));
+  res.status(201).json(new ApiResponse(200, admin, "Admin registered"));
 });
 
 // Login
@@ -92,12 +92,14 @@ export const getAllMyRiders = asyncHandler(async (req, res) => {
 });
 
 export const registerRider = asyncHandler(async (req, res) => {
-  const { name, email, password, phoneNo, cnic, licenseNumber } = req.body;
+  const { name, email, address, password, phoneNo, cnic, licenseNumber } =
+    req.body;
   const avatarPath = req.file?.path;
 
   if (
     !name ||
     !email ||
+    !address ||
     !password ||
     !phoneNo ||
     !cnic ||
@@ -117,10 +119,11 @@ export const registerRider = asyncHandler(async (req, res) => {
     email,
     password,
     phoneNo,
+    address,
     cnic,
     licenseNumber,
     avatar: avatarPath,
-    createdBy: req.user._id, // 👈 Link to Admin
+    createdBy: req.user._id,
   });
 
   const safeRider = await Rider.findById(rider._id).select(
@@ -130,7 +133,7 @@ export const registerRider = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(
-      new ApiResponse(201, { rider: safeRider }, "Rider registered by admin")
+      new ApiResponse(200, { rider: safeRider }, "Rider created successfully")
     );
 });
 
@@ -144,6 +147,7 @@ export const updateAdminProfile = asyncHandler(async (req, res) => {
   if (name) admin.name = name;
   if (email) admin.email = email;
   if (phoneNo) admin.phoneNo = phoneNo;
+
   if (location) admin.location = location;
   if (password) admin.password = password;
 
@@ -162,4 +166,26 @@ export const updateAdminProfile = asyncHandler(async (req, res) => {
       "Admin profile updated"
     )
   );
+});
+
+export const assignRiderToOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { riderId } = req.body;
+
+  if (!riderId) {
+    throw new ApiError(400, "Rider ID is required");
+  }
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new ApiError(404, "Order not found");
+  }
+
+  order.rider = riderId;
+  order.status = "confirmed";
+  await order.save();
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, order, "Rider assigned successfully"));
 });

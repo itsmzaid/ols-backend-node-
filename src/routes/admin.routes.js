@@ -7,7 +7,9 @@ import {
   getAllMyRiders,
   updateAdminProfile,
   registerRider,
+  assignRiderToOrder,
 } from "../controllers/admin.controller.js";
+
 import { verifyAdminJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -20,6 +22,7 @@ router.post("/logout", verifyAdminJWT, logoutAdmin);
 router.get("/orders", verifyAdminJWT, getAllOrders);
 router.patch("/update", verifyAdminJWT, updateAdminProfile);
 router.get("/riders", verifyAdminJWT, getAllMyRiders);
+router.patch("/assign-order/:orderId", verifyAdminJWT, assignRiderToOrder);
 
 router.post(
   "/create-rider",
