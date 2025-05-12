@@ -16,6 +16,11 @@ const riderSchema = new Schema(
       required: true,
       trim: true,
     },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     phoneNo: {
       type: String,
       required: true,
@@ -47,6 +52,11 @@ const riderSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Admin",
       required: [true, "Admin reference is required for rider"],
+    },
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Inactive",
     },
   },
   { timestamps: true }

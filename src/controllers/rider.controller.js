@@ -159,6 +159,32 @@ const updateRiderAvatar = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, rider, "Avatar updated"));
 });
 
+const updateRiderStatus = asyncHandler(async (req, res) => {
+  const riderId = req.user._id;
+  const { status } = req.body;
+
+  if (!["Active", "Inactive"].includes(status)) {
+    throw new ApiError(
+      400,
+      "Invalid status. It should be either 'Active' or 'Inactive'"
+    );
+  }
+
+  const rider = await Rider.findByIdAndUpdate(
+    riderId,
+    { status },
+    { new: true }
+  );
+
+  if (!rider) {
+    throw new ApiError(404, "Rider not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, rider, `Rider status updated to ${status}`));
+});
+
 export {
   loginRider,
   logoutRider,
@@ -167,4 +193,5 @@ export {
   getCurrentRider,
   updateAccountDetailsRider,
   updateRiderAvatar,
+  updateRiderStatus,
 };

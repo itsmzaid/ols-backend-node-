@@ -92,12 +92,14 @@ export const getAllMyRiders = asyncHandler(async (req, res) => {
 });
 
 export const registerRider = asyncHandler(async (req, res) => {
-  const { name, email, password, phoneNo, cnic, licenseNumber } = req.body;
+  const { name, email, address, password, phoneNo, cnic, licenseNumber } =
+    req.body;
   const avatarPath = req.file?.path;
 
   if (
     !name ||
     !email ||
+    !address ||
     !password ||
     !phoneNo ||
     !cnic ||
@@ -117,6 +119,7 @@ export const registerRider = asyncHandler(async (req, res) => {
     email,
     password,
     phoneNo,
+    address,
     cnic,
     licenseNumber,
     avatar: avatarPath,
@@ -130,7 +133,7 @@ export const registerRider = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(
-      new ApiResponse(200, { rider: safeRider }, "Rider registered by admin")
+      new ApiResponse(200, { rider: safeRider }, "Rider created successfully")
     );
 });
 
@@ -144,6 +147,7 @@ export const updateAdminProfile = asyncHandler(async (req, res) => {
   if (name) admin.name = name;
   if (email) admin.email = email;
   if (phoneNo) admin.phoneNo = phoneNo;
+
   if (location) admin.location = location;
   if (password) admin.password = password;
 
