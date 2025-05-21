@@ -8,6 +8,8 @@ import {
   updateAccountDetailsRider,
   updateRiderAvatar,
   updateRiderStatus,
+  getRiderOrders,
+  markOrderDelivered,
 } from "../controllers/rider.controller.js";
 import { verifyRiderJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -27,5 +29,6 @@ router.post(
   updateRiderAvatar
 );
 router.patch("/status", verifyRiderJWT, updateRiderStatus);
-
+router.get("/orders", verifyRiderJWT, getRiderOrders);
+router.patch("/order/:orderId", verifyRiderJWT, markOrderDelivered);
 export default router;

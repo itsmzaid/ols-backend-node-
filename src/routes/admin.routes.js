@@ -8,6 +8,7 @@ import {
   updateAdminProfile,
   registerRider,
   assignRiderToOrder,
+  deleteOrderByAdmin,
 } from "../controllers/admin.controller.js";
 
 import { verifyAdminJWT } from "../middlewares/auth.middleware.js";
@@ -23,6 +24,7 @@ router.get("/orders", verifyAdminJWT, getAllOrders);
 router.patch("/update", verifyAdminJWT, updateAdminProfile);
 router.get("/riders", verifyAdminJWT, getAllMyRiders);
 router.patch("/assign-order/:orderId", verifyAdminJWT, assignRiderToOrder);
+router.delete("/order/:orderId", verifyAdminJWT, deleteOrderByAdmin);
 
 router.post(
   "/create-rider",

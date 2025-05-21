@@ -1,7 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { Rider } from "../models/rider.model.js"; // Rider model import
+import { Rider } from "../models/rider.model.js";
+import { Order } from "../models/order.model.js";
 import jwt from "jsonwebtoken";
 
 // Token Generator
@@ -185,6 +186,50 @@ const updateRiderStatus = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, rider, `Rider status updated to ${status}`));
 });
 
+const getRiderOrders = asyncHandler(async (req, res) => {
+  const riderId = req.user._id;
+
+  const orders = await Order.find({
+    rider: riderId,
+    status: "confirmed",
+  })
+    .populate("user", "fullName email")
+    .sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        orders,
+        "Confirmed orders assigned to this rider fetched successfully"
+      )
+    );
+});
+
+const markOrderDelivered = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const riderId = req.user._id;
+
+  const order = await Order.findOne({ _id: orderId, rider: riderId });
+
+  if (!order) {
+    throw new ApiError(404, "Order not found or not assigned to you");
+  }
+
+  if (order.status === "delivered") {
+    throw new ApiError(400, "Order is already marked as delivered");
+  }
+
+  order.status = "delivered";
+
+  await order.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, order, "Order marked as delivered"));
+});
+
 export {
   loginRider,
   logoutRider,
@@ -194,4 +239,6 @@ export {
   updateAccountDetailsRider,
   updateRiderAvatar,
   updateRiderStatus,
+  getRiderOrders,
+  markOrderDelivered,
 };

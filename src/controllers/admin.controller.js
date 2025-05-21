@@ -189,3 +189,22 @@ export const assignRiderToOrder = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, order, "Rider assigned successfully"));
 });
+
+export const deleteOrderByAdmin = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new ApiError(404, "Order not found");
+  }
+
+  if (order.assignedAdmin?.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this order");
+  }
+
+  await order.deleteOne();
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Order deleted successfully"));
+});
