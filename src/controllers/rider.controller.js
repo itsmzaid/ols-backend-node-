@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Rider } from "../models/rider.model.js";
 import { Order } from "../models/order.model.js";
+import { Chat } from "../models/chat.model.js";
 import jwt from "jsonwebtoken";
 
 // Token Generator
@@ -191,7 +192,6 @@ const getRiderOrders = asyncHandler(async (req, res) => {
 
   const orders = await Order.find({
     rider: riderId,
-    status: "confirmed",
   })
     .populate("user", "fullName email")
     .sort({ createdAt: -1 });
@@ -207,9 +207,10 @@ const getRiderOrders = asyncHandler(async (req, res) => {
     );
 });
 
-const markOrderDelivered = asyncHandler(async (req, res) => {
+const markOrderStatus = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
   const riderId = req.user._id;
+  const { status } = req.body;
 
   const order = await Order.findOne({ _id: orderId, rider: riderId });
 
@@ -221,13 +222,36 @@ const markOrderDelivered = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Order is already marked as delivered");
   }
 
-  order.status = "delivered";
+  if (status) {
+    order.status = status;
+  }
 
   await order.save();
 
+  let chat = await Chat.findOne({ order: order._id });
+
+  if (status === "riding") {
+    if (!chat) {
+      chat = await Chat.create({
+        order: order._id,
+        user: order.user,
+        rider: order.rider,
+        isActive: true,
+      });
+    } else {
+      chat.isActive = true;
+      await chat.save();
+    }
+  }
+
+  if (status !== "riding" && chat) {
+    chat.isActive = false;
+    await chat.save();
+  }
+
   return res
     .status(200)
-    .json(new ApiResponse(200, order, "Order marked as delivered"));
+    .json(new ApiResponse(200, order, `Order status updated to ${status}`));
 });
 
 export {
@@ -240,5 +264,5 @@ export {
   updateRiderAvatar,
   updateRiderStatus,
   getRiderOrders,
-  markOrderDelivered,
+  markOrderStatus,
 };

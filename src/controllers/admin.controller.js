@@ -170,7 +170,7 @@ export const updateAdminProfile = asyncHandler(async (req, res) => {
 
 export const assignRiderToOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const { riderId } = req.body;
+  const { riderId, status } = req.body;
 
   if (!riderId) {
     throw new ApiError(400, "Rider ID is required");
@@ -182,7 +182,11 @@ export const assignRiderToOrder = asyncHandler(async (req, res) => {
   }
 
   order.rider = riderId;
-  order.status = "confirmed";
+
+  if (status) {
+    order.status = status;
+  }
+
   await order.save();
 
   res
