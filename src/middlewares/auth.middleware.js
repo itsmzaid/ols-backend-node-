@@ -8,7 +8,8 @@ import jwt from "jsonwebtoken";
 if (!process.env.ACCESS_TOKEN_SECRET) {
   throw new Error("ACCESS_TOKEN_SECRET environment variable not set");
 }
-const verifyToken = (model) =>
+
+const verifyToken = (model, role) =>
   asyncHandler(async (req, _, next) => {
     const token =
       req.cookies?.accessToken ||
@@ -30,6 +31,12 @@ const verifyToken = (model) =>
       }
 
       req.user = user;
+      req.userRole = role;
+
+      if (role === "user") req.userId = user._id;
+      if (role === "rider") req.riderId = user._id;
+      if (role === "admin") req.adminId = user._id;
+
       next();
     } catch (error) {
       if (error.name === "TokenExpiredError") {
@@ -44,6 +51,6 @@ const verifyToken = (model) =>
     }
   });
 
-export const verifyUserJWT = verifyToken(User);
-export const verifyRiderJWT = verifyToken(Rider);
-export const verifyAdminJWT = verifyToken(Admin);
+export const verifyUserJWT = verifyToken(User, "user");
+export const verifyRiderJWT = verifyToken(Rider, "rider");
+export const verifyAdminJWT = verifyToken(Admin, "admin");

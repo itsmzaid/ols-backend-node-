@@ -25,7 +25,14 @@ const orderSchema = new Schema(
     total: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "delivering", "delivered"],
+      enum: [
+        "pending",
+        "confirmed",
+        "picked",
+        "readytoride",
+        "riding",
+        "delivered",
+      ],
       default: "pending",
     },
     rider: { type: Schema.Types.ObjectId, ref: "Rider" },
