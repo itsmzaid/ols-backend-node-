@@ -192,7 +192,7 @@ const getRiderOrders = asyncHandler(async (req, res) => {
 
   const orders = await Order.find({
     rider: riderId,
-  })
+  }).populate("items.item")
     .populate("user", "fullName email")
     .sort({ createdAt: -1 });
 
