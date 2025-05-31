@@ -3,7 +3,6 @@ import connectDB from "./db/index.js";
 import { app } from "./app.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
-// import { setSocketIOInstance } from "./controllers/chat.controller.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -16,20 +15,21 @@ const io = new Server(httpServer, {
   },
 });
 
-// setSocketIOInstance(io);
+io.on("connection", (socket) => {
+  socket.on("join_room", (room) => {
+    socket.join(room);
+    console.log(`Socket ${socket.id} joined chat: ${room}`);
+  });
 
-// io.on("connection", (socket) => {
-//   console.log("User connected:", socket.id);
+  socket.on("send_message", (data) => {
+    console.log(data);
+    io.to(data.room).emit("receive_message", data);
+  });
 
-//   socket.on("joinChat", (chatId) => {
-//     socket.join(chatId);
-//     console.log(`User joined chat: ${chatId}`);
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log("User disconnected:", socket.id);
-//   });
-// });
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
 
 connectDB()
   .then(() => {
