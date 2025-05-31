@@ -3,7 +3,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Rider } from "../models/rider.model.js";
 import { Order } from "../models/order.model.js";
-import { Chat } from "../models/chat.model.js";
 import jwt from "jsonwebtoken";
 
 // Token Generator
@@ -227,27 +226,6 @@ const markOrderStatus = asyncHandler(async (req, res) => {
   }
 
   await order.save();
-
-  let chat = await Chat.findOne({ order: order._id });
-
-  if (status === "riding") {
-    if (!chat) {
-      chat = await Chat.create({
-        order: order._id,
-        user: order.user,
-        rider: order.rider,
-        isActive: true,
-      });
-    } else {
-      chat.isActive = true;
-      await chat.save();
-    }
-  }
-
-  if (status !== "riding" && chat) {
-    chat.isActive = false;
-    await chat.save();
-  }
 
   return res
     .status(200)
