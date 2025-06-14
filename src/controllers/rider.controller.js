@@ -111,7 +111,6 @@ const updateAccountDetailsRider = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Rider not found");
   }
 
-  // Check for duplicate email if email is being changed
   if (email && email !== rider.email) {
     const existingRider = await Rider.findOne({ email });
     if (existingRider) {
@@ -120,8 +119,18 @@ const updateAccountDetailsRider = asyncHandler(async (req, res) => {
     rider.email = email;
   }
 
+  if (phoneNo && phoneNo !== rider.phoneNo) {
+    const existingRider = await Rider.findOne({ phoneNo });
+    if (existingRider) {
+      throw new ApiError(
+        400,
+        "Phone number is already taken by another account"
+      );
+    }
+    rider.phoneNo = phoneNo;
+  }
+
   if (name) rider.name = name;
-  if (phoneNo) rider.phoneNo = phoneNo;
 
   await rider.save({ validateBeforeSave: false });
   const safeRider = await Rider.findById(rider._id).select("-password");

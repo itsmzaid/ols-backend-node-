@@ -157,7 +157,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  // Check for email duplication (only if it's being changed)
   if (email && email !== user.email) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -166,8 +165,18 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     user.email = email;
   }
 
+  if (phoneNo && phoneNo !== user.phoneNo) {
+    const existingUser = await User.findOne({ phoneNo });
+    if (existingUser) {
+      throw new ApiError(
+        400,
+        "Phone number is already taken by another account"
+      );
+    }
+    user.phoneNo = phoneNo;
+  }
+
   if (name) user.name = name;
-  if (phoneNo) user.phoneNo = phoneNo;
 
   await user.save({ validateBeforeSave: false });
 
