@@ -31,7 +31,7 @@ const orderSchema = new Schema(
         "picked",
         "readytoride",
         "picking",
-        "delivering"
+        "delivering",
         "delivered",
       ],
       default: "pending",
