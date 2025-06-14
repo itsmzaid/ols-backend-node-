@@ -28,9 +28,9 @@ const orderSchema = new Schema(
       enum: [
         "pending",
         "confirmed",
+        "picking",
         "picked",
         "readytoride",
-        "picking",
         "delivering",
         "delivered",
       ],

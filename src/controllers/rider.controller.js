@@ -104,24 +104,16 @@ const getCurrentRider = asyncHandler(async (req, res) => {
 
 // Update Account
 const updateAccountDetailsRider = asyncHandler(async (req, res) => {
-  const { name, email, phoneNo, cnic, licenseNumber, password } = req.body;
-  if (!password) {
-    throw new ApiError(400, "Password is required to update account");
-  }
+  const { name, email, phoneNo } = req.body;
+
   const rider = await Rider.findById(req.user._id);
   if (!rider) {
     throw new ApiError(404, "Rider not found");
-  }
-  const isPasswordValid = await rider.isPasswordCorrect(password);
-  if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid password");
   }
 
   if (name) rider.name = name;
   if (email) rider.email = email;
   if (phoneNo) rider.phoneNo = phoneNo;
-  if (cnic) rider.cnic = cnic;
-  if (licenseNumber) rider.licenseNumber = licenseNumber;
 
   await rider.save({ validateBeforeSave: false });
   const safeRider = await Rider.findById(rider._id).select("-password");
@@ -191,7 +183,8 @@ const getRiderOrders = asyncHandler(async (req, res) => {
 
   const orders = await Order.find({
     rider: riderId,
-  }).populate("items.item")
+  })
+    .populate("items.item")
     .populate("user", "name email")
     .sort({ createdAt: -1 });
 

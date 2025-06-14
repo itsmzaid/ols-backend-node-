@@ -149,17 +149,11 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 // Update Account Details
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { name, email, phoneNo, password } = req.body;
-  if (!password) {
-    throw new ApiError(400, "Password is required to update account");
-  }
+  const { name, email, phoneNo } = req.body;
+
   const user = await User.findById(req.user._id);
   if (!user) {
     throw new ApiError(404, "User not found");
-  }
-  const isPasswordValid = await user.isPasswordCorrect(password);
-  if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid password");
   }
 
   if (name) user.name = name;
