@@ -148,6 +148,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 // Update Account Details
+// Update Account Details
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { name, email, phoneNo } = req.body;
 
@@ -156,11 +157,20 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
+  // Check for email duplication (only if it's being changed)
+  if (email && email !== user.email) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new ApiError(400, "Email is already taken by another account");
+    }
+    user.email = email;
+  }
+
   if (name) user.name = name;
-  if (email) user.email = email;
   if (phoneNo) user.phoneNo = phoneNo;
 
   await user.save({ validateBeforeSave: false });
+
   const safeUser = await User.findById(user._id).select("-password");
 
   return res
