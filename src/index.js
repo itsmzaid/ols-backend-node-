@@ -26,6 +26,11 @@ io.on("connection", (socket) => {
     io.to(data.room).emit("receive_message", data);
   });
 
+  socket.on("send_location", (data) => {
+    console.log(data);
+    io.to(data.room).emit("receive_location", data);
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
