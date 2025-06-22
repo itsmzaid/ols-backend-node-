@@ -30,23 +30,30 @@ const sendMessage = asyncHandler(async (req, res) => {
     content,
   });
 
-  // io.to(chatId).emit("newMessage", {
-  //   _id: message._id,
-  //   chat: chatId,
-  //   senderType,
-  //   senderId,
-  //   content,
-  //   createdAt: message.createdAt,
-  // });
-
   res.status(201).json(new ApiResponse(201, message, "Message sent"));
 });
 
 // Get chat messages
-// const getMessages = asyncHandler(async (req, res) => {
-//   const messages = await Message.find({ chat: chatId }).sort({ createdAt: 1 });
+const getMessages = asyncHandler(async (req, res) => {
 
-//   res.status(200).json(new ApiResponse(200, messages, "Messages fetched"));
-// });
+  const { receiverId } = req.params;
 
-export { sendMessage };
+  var senderId = "";
+
+  if (req.userRole === "user") {
+    senderId = req.userId;
+  } else if (req.userRole === "rider") {
+    senderId = req.riderId;
+  }
+
+  const messages = await Message.find({
+    $or: [
+      { senderId, receiverId },
+      { senderId: receiverId, receiverId: senderId }
+    ]
+  }).sort({ createdAt: 1 });
+
+  res.status(200).json(new ApiResponse(200, messages, "Messages fetched"));
+});
+
+export { sendMessage, getMessages };
