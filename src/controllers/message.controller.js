@@ -38,7 +38,6 @@ const getMessages = asyncHandler(async (req, res) => {
 
   const { receiverId } = req.params;
 
-  console.log(receiverId)
   var senderId = "";
 
   if (req.userRole === "user") {
@@ -54,8 +53,6 @@ const getMessages = asyncHandler(async (req, res) => {
     ]
   }).sort({ createdAt: 1 });
 
-
-  console.log(messages)
   res.status(200).json(new ApiResponse(200, messages, "Messages fetched"));
 });
 
