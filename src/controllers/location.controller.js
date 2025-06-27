@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { getDistanceInKm } from "../utils/distance.utils.js";
 
-const shippingRatePerKm = 40;
+const shippingRatePerKm = 50;
 
 export const setUserLocation = asyncHandler(async (req, res) => {
   const userId = req.user._id;
