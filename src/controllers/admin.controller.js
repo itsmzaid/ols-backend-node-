@@ -6,17 +6,30 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 // Register
+
 export const registerAdmin = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phoneNo, location } = req.body;
+
   if (!name || !email || !password) {
     throw new ApiError(400, "Name, email and password are required");
   }
 
   const existing = await Admin.findOne({ email });
-  if (existing) throw new ApiError(409, "Admin already exists");
+  if (existing) {
+    throw new ApiError(409, "Admin already exists");
+  }
 
-  const admin = await Admin.create({ name, email, password });
-  res.status(201).json(new ApiResponse(200, admin, "Admin registered"));
+  const admin = await Admin.create({
+    name,
+    email,
+    password,
+    phoneNo,
+    location: location || null,
+  });
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, admin, "Admin registered successfully"));
 });
 
 // Login
