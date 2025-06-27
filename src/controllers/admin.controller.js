@@ -82,6 +82,7 @@ export const logoutAdmin = asyncHandler(async (req, res) => {
 // Get all orders (assigned to this admin)
 export const getAllOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({ assignedAdmin: req.user._id })
+    .sort({ createdAt: -1 })
     .populate("user", "fullName email phoneNo")
     .populate("rider", "name phoneNo email avatar")
     .populate("items.item");
